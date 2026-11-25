@@ -1,0 +1,83 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-11-25T22:15:22.934844+00:00",
+  "retrieval": "lexical",
+  "catalogVersion": "1.0.0",
+  "provider": "fake",
+  "modelId": "fake-chat-v1",
+  "promptVersion": "fake-discovery-v1",
+  "embeddingModelId": null,
+  "datasets": {
+    "discovery": {
+      "version": "1.0.0",
+      "cases": 18
+    },
+    "qa": {
+      "version": "1.0.0",
+      "cases": 16
+    },
+    "insufficient-evidence": {
+      "version": "1.0.0",
+      "cases": 16
+    },
+    "refinement": {
+      "version": "1.0.0",
+      "cases": 16
+    }
+  },
+  "metrics": {
+    "SC-001": {
+      "successRate": 1.0,
+      "passed": 15,
+      "total": 15,
+      "target": 0.85,
+      "gate": "measured-proxy"
+    },
+    "SC-002": {
+      "successRate": 1.0,
+      "passed": 16,
+      "total": 16,
+      "target": 0.9,
+      "gate": "measured"
+    },
+    "SC-003": {
+      "successRate": 1.0,
+      "passed": 16,
+      "total": 16,
+      "target": 0.95,
+      "gate": "measured"
+    },
+    "SC-004": {
+      "p50Ms": 1.145833870396018,
+      "p95Ms": 1.3527919072657824,
+      "maxMs": 1.81275000795722,
+      "requestCount": 82,
+      "targetP95Ms": 5000,
+      "gate": "latency distribution under agreed evaluation workload"
+    },
+    "SC-005": {
+      "recallAt3": 0.9388888888888889,
+      "k": 3,
+      "gate": "report-only; numeric threshold deferred"
+    },
+    "SC-006": {
+      "successRate": 1.0,
+      "passed": 16,
+      "total": 16,
+      "gate": "report-only; numeric threshold deferred"
+    }
+  },
+  "workload": {
+    "iterationsPerCase": 1,
+    "concurrency": 1,
+    "execution": "in-process InteractionService with PostgreSQL and deterministic fake provider",
+    "requestCountIncludesAllRefinementTurns": true
+  },
+  "failures": [],
+  "limitations": [
+    "SC-001 is a catalog-grounded constraint-satisfaction proxy, not human relevance judging.",
+    "SC-005 and SC-006 are reports-only because dataset/methodology approval and thresholds are deferred.",
+    "Datasets are synthetic draft fixtures; no human labeling or approval is claimed.",
+    "Fake deterministic embeddings exercise pgvector mechanics, not hosted semantic quality."
+  ]
+}
