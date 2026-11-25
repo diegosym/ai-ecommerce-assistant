@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:0.8.0-pg16
+        env:
+          POSTGRES_USER: assistant
+          POSTGRES_PASSWORD: assistant
+          POSTGRES_DB: assistant_dev
+        ports:
+          - 55434:5432
+        options: >-
+          --health-cmd "pg_isready -U assistant -d assistant_dev"
+          --health-interval 2s
+          --health-timeout 2s
+          --health-retries 30
+    env:
+      AI_PROVIDER: fake
+      AI_RETRIEVAL: lexical
+      LOG_RAW_CONTENT: "false"
+      DATABASE_URL: postgresql://assistant:assistant@localhost:55434/assistant_dev
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            frontend/package-lock.json
+      - run: uv sync --frozen
+      - run: npm ci
+      - run: npm ci --prefix frontend
+      - run: uv run python -m scripts.migrate
+      - run: uv run python -m scripts.seed_catalog
+      - run: uv run python -m scripts.validate_catalog
+      - run: uv run python -m scripts.generate_embeddings
+      - run: uv run pytest
+      - run: uv run pytest backend/tests/contract
+      - run: uv run ruff check backend
+      - run: npm run check --prefix frontend
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
