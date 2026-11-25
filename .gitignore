@@ -1,0 +1,29 @@
+# dependencies
+node_modules/
+
+# python
+.venv/
+__pycache__/
+*.pyc
+.ruff_cache/
+.pytest_cache/
+
+# next.js
+.next/
+out/
+build/
+
+# env — never commit real credentials
+.env
+.env.local
+.env.*.local
+
+# testing
+coverage/
+playwright-report/
+test-results/
+
+# misc
+.DS_Store
+*.pem
+*.log
