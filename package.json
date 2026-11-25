@@ -1,0 +1,14 @@
+{
+  "name": "ai-ecommerce-assistant-e2e",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test:e2e": "playwright test --config=frontend/playwright.config.ts"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.56.1"
+  }
+}

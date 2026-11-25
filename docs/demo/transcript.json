@@ -1,0 +1,128 @@
+{
+  "capturedAt": "2026-11-25T22:16:05.000Z",
+  "services": {
+    "backend": "http://127.0.0.1:18000",
+    "frontend": "http://127.0.0.1:3000",
+    "provider": "fake",
+    "retrieval": "lexical"
+  },
+  "categories": {
+    "status": 200,
+    "count": 5,
+    "ids": [
+      "cameras",
+      "headphones",
+      "laptops",
+      "smartwatches",
+      "speakers"
+    ]
+  },
+  "filteredProducts": {
+    "status": 200,
+    "total": 5,
+    "first": {
+      "id": "headphones-001",
+      "name": "Auralis Core 01",
+      "categoryId": "headphones",
+      "description": "Auralis Core 01 is an invented headphones model with deterministic specifications for catalog testing.",
+      "price": {
+        "amountMinor": 7900,
+        "currency": "USD"
+      },
+      "attributes": {
+        "weight": 180,
+        "battery-life": 8,
+        "connectivity": "Bluetooth 5.3",
+        "noise-cancellation": false
+      }
+    }
+  },
+  "assistant": {
+    "requestMessage": "I need wireless headphones with noise cancellation for $150.",
+    "reply": {
+      "kind": "recommendations",
+      "text": "Here are catalog-grounded recommendations matching your stated requirements."
+    },
+    "presentations": [
+      {
+        "reference": {
+          "ordinal": 1,
+          "productId": "headphones-002",
+          "firstPresentedTurnId": "1d7bab85-e1f7-4510-8c02-1b77d44fb859"
+        },
+        "product": {
+          "id": "headphones-002",
+          "name": "Auralis Air 02",
+          "categoryId": "headphones",
+          "description": "Auralis Air 02 is an invented headphones model with deterministic specifications for catalog testing.",
+          "price": {
+            "amountMinor": 9400,
+            "currency": "USD"
+          },
+          "attributes": {
+            "weight": 235,
+            "battery-life": 12,
+            "connectivity": "Wi-Fi 6",
+            "noise-cancellation": true
+          }
+        },
+        "grounding": [
+          {
+            "productId": "headphones-002",
+            "fields": [
+              "id",
+              "name",
+              "categoryId",
+              "description",
+              "price",
+              "attributes.connectivity",
+              "attributes.noise-cancellation"
+            ]
+          }
+        ]
+      },
+      {
+        "reference": {
+          "ordinal": 2,
+          "productId": "headphones-004",
+          "firstPresentedTurnId": "1d7bab85-e1f7-4510-8c02-1b77d44fb859"
+        },
+        "product": {
+          "id": "headphones-004",
+          "name": "Auralis Pro 04",
+          "categoryId": "headphones",
+          "description": "Auralis Pro 04 is an invented headphones model with deterministic specifications for catalog testing.",
+          "price": {
+            "amountMinor": 12400,
+            "currency": "USD"
+          },
+          "attributes": {
+            "weight": 345,
+            "battery-life": 20,
+            "connectivity": "Bluetooth 5.3",
+            "noise-cancellation": true
+          }
+        },
+        "grounding": [
+          {
+            "productId": "headphones-004",
+            "fields": [
+              "id",
+              "name",
+              "categoryId",
+              "description",
+              "price",
+              "attributes.connectivity",
+              "attributes.noise-cancellation"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "screenshots": [
+    "chat-discovery.png",
+    "catalog-headphones.png",
+    "catalog-product-detail.png"
+  ]
+}

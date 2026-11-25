@@ -1,0 +1,260 @@
+.catalog {
+  width: min(1180px, calc(100% - 40px));
+  margin: 0 auto;
+  padding: 48px 0;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 28px;
+}
+
+.header h1 {
+  margin: 8px 0 12px;
+  font-size: clamp(2rem, 5vw, 3.8rem);
+  letter-spacing: -0.04em;
+}
+
+.header p {
+  max-width: 680px;
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.header p:first-child {
+  color: var(--accent);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.header a,
+.categories a {
+  color: var(--accent);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.categories {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 26px;
+}
+
+.categories a {
+  padding: 9px 13px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--panel);
+  font-size: 0.84rem;
+}
+
+.categories a[aria-current="page"] {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: white;
+}
+
+.catalog form {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 14px;
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--panel);
+}
+
+.catalog label {
+  display: grid;
+  gap: 7px;
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.catalog select,
+.catalog input {
+  min-height: 42px;
+  padding: 8px 11px;
+  border: 1px solid #bfc9c0;
+  border-radius: 9px;
+  background: white;
+  color: var(--ink);
+  font: inherit;
+}
+
+.catalog button {
+  min-height: 42px;
+  padding: 9px 16px;
+  border: 0;
+  border-radius: 9px;
+  background: var(--accent);
+  color: white;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.catalog [role="status"] {
+  margin-top: 22px;
+  padding: 28px;
+  border: 1px dashed #bfc9c0;
+  border-radius: 16px;
+  text-align: center;
+}
+
+.catalog [role="status"] h2 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.listing {
+  margin-top: 30px;
+}
+
+.listingHeading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.listingHeading h2 {
+  margin: 0;
+  text-transform: capitalize;
+}
+
+.listingHeading p {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(235px, 1fr));
+  gap: 16px;
+}
+
+.grid article {
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--panel);
+}
+
+.grid article > p:first-child {
+  color: var(--accent);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.grid h2 {
+  margin: 8px 0;
+  font-size: 1.08rem;
+}
+
+.grid h2 a {
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.grid article > p {
+  color: var(--muted);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.grid dl,
+.attributes {
+  display: grid;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.grid dl div,
+.attributes div {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.grid dt,
+.attributes dt {
+  color: var(--muted);
+  text-transform: capitalize;
+}
+
+.grid dd,
+.attributes dd {
+  margin: 0;
+  text-align: right;
+}
+
+.detail {
+  max-width: 760px;
+  margin-top: 28px;
+  padding: 32px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: var(--panel);
+}
+
+.detail h1 {
+  margin: 8px 0;
+  font-size: clamp(2rem, 5vw, 3.2rem);
+}
+
+.detail > p {
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.detailPrice {
+  display: block;
+  margin: 18px 0;
+  color: var(--accent-dark);
+  font-size: 1.6rem;
+}
+
+.attributes {
+  padding-top: 12px;
+}
+
+.attributes div {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+@media (max-width: 640px) {
+  .catalog {
+    width: min(100% - 24px, 560px);
+    padding: 28px 0;
+  }
+
+  .header,
+  .listingHeading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .catalog form {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .detail {
+    padding: 22px;
+  }
+}
