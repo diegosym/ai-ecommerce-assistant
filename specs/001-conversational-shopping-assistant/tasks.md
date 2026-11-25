@@ -293,3 +293,7 @@ Evaluation phase intentionally follows the lexical baseline-first order mandated
 - Commit after each task or logical group on branch `001-conversational-shopping-assistant`
 - Stop at any checkpoint to validate the story independently
 - Avoid: vague tasks, same-file conflicts, cross-story dependencies that break independence
+
+## Delivery Log
+
+- **2026-11-25**: T001–T066 implemented and verified (76 pytest + 12 contract, 34 E2E, ruff, frontend lint/typecheck, evaluation reports). Work-unit slices committed on this branch as 8 commits totaling 12,278 authored lines (lockfiles excluded), grouped by feature area (spec → bootstrap → US1/US2 → US5 → US3/US4 → retrieval/evaluation → quality/docs); intermediate commits contain final file states, and HEAD is the fully verified state. Publishing (push/PR) remains a separate human decision.
