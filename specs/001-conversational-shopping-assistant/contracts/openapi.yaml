@@ -1,0 +1,495 @@
+openapi: 3.1.0
+info:
+  title: Conversational Shopping Assistant API
+  version: 0.1.0
+  description: >-
+    Design contract for anonymous catalog browsing and ephemeral conversational
+    assistance. Product facts are hydrated from the catalog. Conversation state
+    is client-held, untrusted, size-bounded, and never persisted by the server.
+servers:
+  - url: http://localhost:3000
+    description: Planned local development server
+paths:
+  /api/v1/catalog/categories:
+    get:
+      operationId: listCategories
+      summary: List conventional catalog categories
+      responses:
+        "200":
+          description: Categories and catalog version
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CategoryListResponse"
+        "503":
+          $ref: "#/components/responses/CatalogUnavailable"
+  /api/v1/catalog/products:
+    get:
+      operationId: listProducts
+      summary: List products using deterministic structured filters
+      description: >-
+        Empty results are successful responses with items: []. This endpoint
+        intentionally has no free-text, semantic, or natural-language search parameter.
+      parameters:
+        - name: categoryId
+          in: query
+          schema:
+            type: string
+            pattern: "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+        - name: minPriceMinor
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+        - name: maxPriceMinor
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+        - name: currency
+          in: query
+          required: false
+          schema:
+            type: string
+            pattern: "^[A-Z]{3}$"
+            default: USD
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 20
+      responses:
+        "200":
+          description: Filtered products, possibly empty
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductListResponse"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "503":
+          $ref: "#/components/responses/CatalogUnavailable"
+  /api/v1/catalog/products/{productId}:
+    get:
+      operationId: getProduct
+      summary: Get one catalog product
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+      responses:
+        "200":
+          description: Current catalog product
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "503":
+          $ref: "#/components/responses/CatalogUnavailable"
+  /api/v1/assistant/interactions:
+    post:
+      operationId: createAssistantInteraction
+      summary: Process one turn in an ephemeral conversation
+      description: >-
+        The server validates the complete client state, recomputes retrieval and
+        grounding, and never trusts client- or model-supplied product facts.
+        A new conversation is created client-side by replacing the conversationId
+        and clearing state; reload performs the same operation without an API call.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AssistantInteractionRequest"
+      responses:
+        "200":
+          description: Successful assistant outcome, including clarification/no-match/out-of-scope
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AssistantInteractionResponse"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "422":
+          description: Syntactically valid request that cannot produce a verified outcome
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Catalog or provider temporarily unavailable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+components:
+  responses:
+    InvalidRequest:
+      description: Invalid or oversized input
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    NotFound:
+      description: Requested catalog resource does not exist
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    CatalogUnavailable:
+      description: Catalog is empty, invalid, or unavailable
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+  schemas:
+    Money:
+      type: object
+      required: [amountMinor, currency]
+      additionalProperties: false
+      properties:
+        amountMinor:
+          type: integer
+          minimum: 0
+        currency:
+          type: string
+          pattern: "^[A-Z]{3}$"
+    NullableMoney:
+      anyOf:
+        - $ref: "#/components/schemas/Money"
+        - type: "null"
+    AttributeValue:
+      anyOf:
+        - type: string
+        - type: number
+        - type: boolean
+        - type: "null"
+    AttributeDefinition:
+      type: object
+      required: [key, label, valueType, filterable]
+      additionalProperties: false
+      properties:
+        key:
+          type: string
+        label:
+          type: string
+        valueType:
+          type: string
+          enum: [string, number, boolean]
+        unit:
+          type: string
+        filterable:
+          type: boolean
+    Category:
+      type: object
+      required: [id, name, description, attributeDefinitions]
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        attributeDefinitions:
+          type: array
+          items:
+            $ref: "#/components/schemas/AttributeDefinition"
+    Product:
+      type: object
+      required: [id, name, categoryId, description, price, attributes]
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        categoryId:
+          type: string
+        description:
+          type: string
+        price:
+          $ref: "#/components/schemas/NullableMoney"
+        attributes:
+          type: object
+          additionalProperties:
+            $ref: "#/components/schemas/AttributeValue"
+    CategoryListResponse:
+      type: object
+      required: [catalogVersion, items]
+      additionalProperties: false
+      properties:
+        catalogVersion:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/Category"
+    ProductListResponse:
+      type: object
+      required: [catalogVersion, items, page, pageSize, total]
+      additionalProperties: false
+      properties:
+        catalogVersion:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/Product"
+        page:
+          type: integer
+          minimum: 1
+        pageSize:
+          type: integer
+          minimum: 1
+          maximum: 50
+        total:
+          type: integer
+          minimum: 0
+    ProductResponse:
+      type: object
+      required: [catalogVersion, product]
+      additionalProperties: false
+      properties:
+        catalogVersion:
+          type: string
+        product:
+          $ref: "#/components/schemas/Product"
+    ConversationTurn:
+      type: object
+      required: [turnId, role, text, createdAt]
+      additionalProperties: false
+      properties:
+        turnId:
+          type: string
+          format: uuid
+        role:
+          type: string
+          enum: [customer, assistant]
+        text:
+          type: string
+          maxLength: 12000
+        createdAt:
+          type: string
+          format: date-time
+        interactionId:
+          type: string
+          format: uuid
+    CustomerPreference:
+      type: object
+      required: [preferenceId, slot, nature, value, sourceTurnId, status]
+      additionalProperties: false
+      properties:
+        preferenceId:
+          type: string
+          format: uuid
+        slot:
+          type: string
+          enum: [category, characteristic, budget, other]
+        key:
+          type: string
+          maxLength: 100
+        nature:
+          type: string
+          enum: [requirement, belief]
+        value:
+          description: Validated against the declared slot/key before use
+        sourceTurnId:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [active, replaced]
+    PresentedProductReference:
+      type: object
+      required: [ordinal, productId, firstPresentedTurnId]
+      additionalProperties: false
+      properties:
+        ordinal:
+          type: integer
+          minimum: 1
+        productId:
+          type: string
+        firstPresentedTurnId:
+          type: string
+          format: uuid
+    ConversationState:
+      type: object
+      required: [conversationId, createdAt, turns, preferences, presentedProducts]
+      additionalProperties: false
+      properties:
+        conversationId:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+        turns:
+          type: array
+          maxItems: 50
+          items:
+            $ref: "#/components/schemas/ConversationTurn"
+        preferences:
+          type: array
+          maxItems: 30
+          items:
+            $ref: "#/components/schemas/CustomerPreference"
+        presentedProducts:
+          type: array
+          maxItems: 50
+          items:
+            $ref: "#/components/schemas/PresentedProductReference"
+    AssistantInteractionRequest:
+      type: object
+      required: [conversation, message]
+      additionalProperties: false
+      properties:
+        conversation:
+          $ref: "#/components/schemas/ConversationState"
+        message:
+          type: string
+          minLength: 1
+          maxLength: 4000
+    AssistantReply:
+      type: object
+      required: [kind, text]
+      additionalProperties: false
+      properties:
+        kind:
+          type: string
+          enum: [recommendations, answer, clarification, no_match, out_of_scope, unavailable]
+        text:
+          type: string
+          maxLength: 12000
+    GroundingReference:
+      type: object
+      required: [productId, fields]
+      additionalProperties: false
+      properties:
+        productId:
+          type: string
+        fields:
+          type: array
+          minItems: 1
+          uniqueItems: true
+          items:
+            type: string
+    ProductPresentation:
+      type: object
+      required: [reference, product, matchedAttributes, unavailableFields, grounding]
+      additionalProperties: false
+      properties:
+        reference:
+          $ref: "#/components/schemas/PresentedProductReference"
+        product:
+          $ref: "#/components/schemas/Product"
+        matchedAttributes:
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+        unavailableFields:
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+        grounding:
+          type: array
+          minItems: 1
+          items:
+            $ref: "#/components/schemas/GroundingReference"
+    RelaxationSuggestion:
+      type: object
+      required: [preferenceId, label, resultCount]
+      additionalProperties: false
+      properties:
+        preferenceId:
+          type: string
+          format: uuid
+        label:
+          type: string
+        resultCount:
+          type: integer
+          minimum: 0
+    InteractionMeasurements:
+      type: object
+      required: [interactionId, latencyMs, inputTokens, outputTokens, estimatedCostMinor, currency, pricingVersion]
+      additionalProperties: false
+      properties:
+        interactionId:
+          type: string
+          format: uuid
+        latencyMs:
+          type: integer
+          minimum: 0
+        inputTokens:
+          type: [integer, "null"]
+          minimum: 0
+        outputTokens:
+          type: [integer, "null"]
+          minimum: 0
+        estimatedCostMinor:
+          type: [number, "null"]
+          minimum: 0
+        currency:
+          type: [string, "null"]
+          pattern: "^[A-Z]{3}$"
+        pricingVersion:
+          type: [string, "null"]
+    AssistantInteractionResponse:
+      type: object
+      required: [conversation, reply, presentations, relaxations, measurements, catalogVersion]
+      additionalProperties: false
+      properties:
+        conversation:
+          $ref: "#/components/schemas/ConversationState"
+        reply:
+          $ref: "#/components/schemas/AssistantReply"
+        presentations:
+          type: array
+          maxItems: 10
+          items:
+            $ref: "#/components/schemas/ProductPresentation"
+        relaxations:
+          type: array
+          maxItems: 5
+          items:
+            $ref: "#/components/schemas/RelaxationSuggestion"
+        measurements:
+          $ref: "#/components/schemas/InteractionMeasurements"
+        catalogVersion:
+          type: [string, "null"]
+    ErrorResponse:
+      type: object
+      required: [error, interactionId]
+      additionalProperties: false
+      properties:
+        error:
+          type: object
+          required: [code, message, retryable]
+          additionalProperties: false
+          properties:
+            code:
+              type: string
+              enum: [invalid_request, invalid_state, not_found, catalog_unavailable, provider_unavailable, response_validation_failed, internal_error]
+            message:
+              type: string
+              description: Safe display message; no stack trace, credentials, or raw prompt
+            retryable:
+              type: boolean
+        interactionId:
+          type: [string, "null"]
+          format: uuid
