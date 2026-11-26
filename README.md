@@ -62,7 +62,7 @@ Terminal 2 — Next.js on **3000**:
 ASSISTANT_API_URL=http://127.0.0.1:18000/api/v1 npm --prefix frontend run dev
 ```
 
-Open `http://127.0.0.1:3000` for the assistant or `http://127.0.0.1:3000/catalog` for conventional browsing. The Next.js assistant proxy forwards requests to the configured backend. Catalog pages fetch through the same server-side base URL.
+Open `http://localhost:3000` for the assistant or `http://localhost:3000/catalog` for conventional browsing. **Use `localhost`, not `127.0.0.1`: Next.js 16 dev rejects a `127.0.0.1` Origin on its HMR socket (invalid WebSocket handshake), which stalls hydration and breaks every interaction.** The Next.js assistant proxy forwards requests to the configured backend. Catalog pages fetch through the same server-side base URL.
 
 Host ports 8000 and 5432 are reserved for other local services in the development environment and are not required by this project.
 
@@ -97,7 +97,7 @@ AI_RETRIEVAL=hybrid uv run python -m scripts.evaluate \
   --comparison-output data/evaluation/reports/comparison.md
 ```
 
-Datasets are versioned synthetic draft fixtures with explicit provenance and contamination controls. Reports record catalog/dataset/provider/model versions and SC-001–SC-006. SC-001 is a constraint-satisfaction proxy, not human judging. SC-005 and SC-006 are **report-only** because thresholds and methodology approval are deferred. See the [final report](data/evaluation/reports/final.md).
+Datasets are versioned synthetic draft fixtures with explicit provenance and contamination controls. Reports record catalog/dataset/provider/model versions and SC-001–SC-006. SC-001 is a constraint-satisfaction proxy, not human judging. SC-005 (Recall@3 ≥ 90%) and SC-006 (refinement ≥ 90%) are release gates approved 2026-11-25 and enforced by the evaluator. See the [final report](data/evaluation/reports/final.md).
 
 ## Optional hosted-provider smoke
 
