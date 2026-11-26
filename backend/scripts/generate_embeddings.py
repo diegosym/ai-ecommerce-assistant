@@ -1,15 +1,18 @@
 import hashlib
 import json
 import sys
+from typing import Any
 
 import psycopg
+from pydantic import ValidationError
 
-from app.core.config import get_settings
+from app.core.config import Settings, get_settings
 from app.core.validation import Product
 from scripts.validate_catalog import validate_catalog_file
 
 DIMENSIONS = 1536
 FAKE_MODEL_ID = "fake-embedding-1536-v1"
+OPENAI_KEY_ERROR = "OPENAI_API_KEY is required when AI_PROVIDER=openai"
 
 
 def normalized_product_text(product: Product) -> str:
@@ -37,13 +40,71 @@ def fake_embedding(content_digest: str) -> str:
     return f"[{','.join(f'{value / magnitude:.8f}' for value in values)}]"
 
 
-def generate_embeddings() -> None:
-    settings = get_settings()
-    if settings.ai_provider != "fake":
+def resolve_settings(settings: Settings | None) -> Settings:
+    """Resolve process settings; report configuration problems without pydantic dumps."""
+    if settings is not None:
+        return settings
+    try:
+        return get_settings()
+    except ValidationError as error:
+        details = "; ".join(configuration_error_details(error))
+        raise ValueError(f"Invalid embedding configuration: {details}") from None
+
+
+def configuration_error_details(error: ValidationError) -> list[str]:
+    """Keep the original validator message; drop pydantic's wrapper and input dump."""
+    details = []
+    for item in error.errors():
+        original = item.get("ctx", {}).get("error")
+        details.append(str(original) if isinstance(original, Exception) else str(item["msg"]))
+    return details
+
+
+def build_openai_client(settings: Settings) -> Any:
+    if not settings.openai_api_key:
+        raise ValueError(OPENAI_KEY_ERROR)
+    try:
+        import openai
+    except ImportError as error:
+        raise RuntimeError(
+            "The optional openai package is required for hosted embedding generation"
+        ) from error
+    return openai.OpenAI(
+        api_key=settings.openai_api_key,
+        timeout=settings.provider_timeout_seconds,
+    )
+
+
+def openai_embedding(client: Any, model_id: str, content_text: str) -> list[float]:
+    """One hosted vector per product, validated against the stored schema width."""
+    response = client.embeddings.create(model=model_id, input=content_text)
+    rows = response.data
+    if not rows:
+        raise ValueError(f"Embeddings API returned no vector for model {model_id}.")
+    values = [float(value) for value in rows[0].embedding]
+    if len(values) != DIMENSIONS:
         raise ValueError(
-            "This foundational command supports only AI_PROVIDER=fake; "
-            "no hosted network calls are made."
+            f"Embeddings API returned {len(values)} dimensions for model {model_id}; "
+            f"product_embeddings requires vector({DIMENSIONS})."
         )
+    return values
+
+
+def generate_embeddings(
+    settings: Settings | None = None,
+    openai_client: Any | None = None,
+) -> None:
+    settings = resolve_settings(settings)
+    hosted = settings.ai_provider == "openai"
+    provider = "openai" if hosted else "fake"
+    model_id = FAKE_MODEL_ID
+    dimensions = DIMENSIONS
+    if hosted:
+        if not settings.openai_api_key:
+            raise ValueError(OPENAI_KEY_ERROR)
+        if openai_client is None:
+            openai_client = build_openai_client(settings)
+        model_id = settings.openai_embedding_model
 
     catalog = validate_catalog_file()
     with psycopg.connect(settings.database_url) as connection:
@@ -57,6 +118,14 @@ def generate_embeddings() -> None:
         with connection.transaction():
             for product in catalog.products:
                 content_digest = product_content_digest(product)
+                if hosted:
+                    values = openai_embedding(
+                        openai_client, model_id, normalized_product_text(product)
+                    )
+                    embedding = json.dumps(values)
+                    dimensions = len(values)
+                else:
+                    embedding = fake_embedding(content_digest)
                 connection.execute(
                     """
                     INSERT INTO product_embeddings
@@ -74,18 +143,18 @@ def generate_embeddings() -> None:
                     """,
                     (
                         product.id,
-                        fake_embedding(content_digest),
+                        embedding,
                         catalog.catalogVersion,
-                        "fake",
-                        FAKE_MODEL_ID,
+                        provider,
+                        model_id,
                         content_digest,
-                        DIMENSIONS,
+                        dimensions,
                     ),
                 )
 
     print(f"Embedding generation completed for {len(catalog.products)} products.")
     print(f"Catalog version: {catalog.catalogVersion}")
-    print(f"Provider: fake; model: {FAKE_MODEL_ID}; dimensions: {DIMENSIONS}")
+    print(f"Provider: {provider}; model: {model_id}; dimensions: {dimensions}")
 
 
 if __name__ == "__main__":
