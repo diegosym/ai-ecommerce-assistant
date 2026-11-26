@@ -16,8 +16,8 @@ The original lexical baseline was recorded before semantic/hybrid implementation
 | SC-004 P50 latency | 1.146 ms | 3.251 ms | Observed workload |
 | SC-004 P95 latency | 1.353 ms | 4.176 ms | Both below 5000 ms target |
 | SC-004 maximum latency | 1.813 ms | 6.016 ms | Observed workload |
-| SC-005 Recall@3 | 93.89% | 93.89% | **REPORT-ONLY; threshold deferred** |
-| SC-006 refinement success | 100% (16/16) | 100% (16/16) | **REPORT-ONLY; threshold deferred** |
+| SC-005 Recall@3 | 93.89% | 93.89% | >= 90% release gate (pass) |
+| SC-006 refinement success | 100% (16/16) | 100% (16/16) | >= 90% release gate (pass) |
 
 SC-004 is the **latency distribution under the agreed evaluation workload**: one iteration per case, concurrency one, in-process `InteractionService` with PostgreSQL and the deterministic fake provider. It excludes HTTP/browser/hosted-provider overhead.
 
