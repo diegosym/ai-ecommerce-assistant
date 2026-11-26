@@ -278,13 +278,15 @@ def run_evaluation(retrieval: str) -> dict:
             "SC-005": {
                 "recallAt3": sum(recalls) / len(recalls) if recalls else 0,
                 "k": 3,
-                "gate": "report-only; numeric threshold deferred",
+                "target": 0.90,
+                "gate": "release gate: Recall@3 >= 90% (approved 2026-11-25)",
             },
             "SC-006": {
                 "successRate": rate(refinement_successes),
                 "passed": sum(refinement_successes),
                 "total": len(refinement_successes),
-                "gate": "report-only; numeric threshold deferred",
+                "target": 0.90,
+                "gate": "release gate: refinement success >= 90% (approved 2026-11-25)",
             },
         },
         "workload": {
@@ -296,7 +298,7 @@ def run_evaluation(retrieval: str) -> dict:
         "failures": evaluator.failures,
         "limitations": [
             "SC-001 is a catalog-grounded constraint-satisfaction proxy, not human relevance judging.",
-            "SC-005 and SC-006 are reports-only because dataset/methodology approval and thresholds are deferred.",
+            "SC-005 and SC-006 thresholds (>= 90%) were approved 2026-11-25; datasets remain synthetic draft fixtures.",
             "Datasets are synthetic draft fixtures; no human labeling or approval is claimed.",
             "Fake deterministic embeddings exercise pgvector mechanics, not hosted semantic quality.",
         ],
@@ -336,8 +338,8 @@ def write_markdown(report: dict, output: Path) -> None:
             f"| SC-001 discovery proxy | {percentage(metrics['SC-001']['successRate'])} ({metrics['SC-001']['passed']}/{metrics['SC-001']['total']}) | >= {percentage(metrics['SC-001']['target'])}; measured proxy |",
             f"| SC-002 Q&A correctness | {percentage(metrics['SC-002']['successRate'])} ({metrics['SC-002']['passed']}/{metrics['SC-002']['total']}) | >= {percentage(metrics['SC-002']['target'])} |",
             f"| SC-003 insufficient evidence | {percentage(metrics['SC-003']['successRate'])} ({metrics['SC-003']['passed']}/{metrics['SC-003']['total']}) | >= {percentage(metrics['SC-003']['target'])} |",
-            f"| SC-005 Recall@3 | {percentage(metrics['SC-005']['recallAt3'])} | **REPORT-ONLY; threshold deferred** |",
-            f"| SC-006 refinement | {percentage(metrics['SC-006']['successRate'])} ({metrics['SC-006']['passed']}/{metrics['SC-006']['total']}) | **REPORT-ONLY; threshold deferred** |",
+            f"| SC-005 Recall@3 | {percentage(metrics['SC-005']['recallAt3'])} | >= {percentage(metrics['SC-005']['target'])} (release gate) |",
+            f"| SC-006 refinement | {percentage(metrics['SC-006']['successRate'])} ({metrics['SC-006']['passed']}/{metrics['SC-006']['total']}) | >= {percentage(metrics['SC-006']['target'])} (release gate) |",
             "",
             "## SC-004 — Latency distribution under agreed evaluation workload",
             "",
@@ -360,11 +362,27 @@ def write_markdown(report: dict, output: Path) -> None:
     output.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
+def gate_failures(metrics: dict) -> list[str]:
+    failures: list[str] = []
+    for criterion, field, label in (
+        ("SC-005", "recallAt3", "Recall@3"),
+        ("SC-006", "successRate", "refinement success"),
+    ):
+        value = float(metrics[criterion][field])
+        target = float(metrics[criterion]["target"])
+        if value < target:
+            failures.append(
+                f"{criterion} {label} is {value * 100:.2f}%, "
+                f"below the approved target of {target * 100:.0f}%"
+            )
+    return failures
+
+
 def write_comparison(baseline: dict, candidate: dict, output: Path) -> None:
     lines = [
         "# Baseline vs hybrid retrieval comparison",
         "",
-        "SC-005 and SC-006 are **REPORT-ONLY**; numeric thresholds are deferred.",
+        "SC-005 (Recall@3) and SC-006 (refinement) are release gates at >= 90%, approved 2026-11-25; deltas below are observations against those targets.",
         "",
         "| Metric | Lexical baseline | Hybrid candidate | Delta |",
         "|---|---:|---:|---:|",
@@ -414,6 +432,9 @@ def main() -> None:
         comparison_output = args.comparison_output or args.output.with_name("comparison.md")
         write_comparison(baseline, report, comparison_output)
     print(json.dumps({"output": str(args.output), "metrics": report["metrics"]}, indent=2))
+    failures = gate_failures(report["metrics"])
+    if failures:
+        raise SystemExit("\n".join(f"RELEASE GATE FAILED: {failure}" for failure in failures))
 
 
 if __name__ == "__main__":

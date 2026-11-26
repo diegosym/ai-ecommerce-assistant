@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "generatedAt": "2026-11-25T22:15:23.297158+00:00",
+  "generatedAt": "2026-11-26T16:46:27.529563+00:00",
   "retrieval": "hybrid",
   "catalogVersion": "1.0.0",
   "provider": "fake",
@@ -48,9 +48,9 @@
       "gate": "measured"
     },
     "SC-004": {
-      "p50Ms": 3.2505840063095093,
-      "p95Ms": 4.176208050921559,
-      "maxMs": 6.01550005376339,
+      "p50Ms": 3.8075000047683716,
+      "p95Ms": 4.742874996736646,
+      "maxMs": 6.84945797547698,
       "requestCount": 82,
       "targetP95Ms": 5000,
       "gate": "latency distribution under agreed evaluation workload"
@@ -58,13 +58,15 @@
     "SC-005": {
       "recallAt3": 0.9388888888888889,
       "k": 3,
-      "gate": "report-only; numeric threshold deferred"
+      "target": 0.9,
+      "gate": "release gate: Recall@3 >= 90% (approved 2026-11-25)"
     },
     "SC-006": {
       "successRate": 1.0,
       "passed": 16,
       "total": 16,
-      "gate": "report-only; numeric threshold deferred"
+      "target": 0.9,
+      "gate": "release gate: refinement success >= 90% (approved 2026-11-25)"
     }
   },
   "workload": {
@@ -76,7 +78,7 @@
   "failures": [],
   "limitations": [
     "SC-001 is a catalog-grounded constraint-satisfaction proxy, not human relevance judging.",
-    "SC-005 and SC-006 are reports-only because dataset/methodology approval and thresholds are deferred.",
+    "SC-005 and SC-006 thresholds (>= 90%) were approved 2026-11-25; datasets remain synthetic draft fixtures.",
     "Datasets are synthetic draft fixtures; no human labeling or approval is claimed.",
     "Fake deterministic embeddings exercise pgvector mechanics, not hosted semantic quality."
   ]

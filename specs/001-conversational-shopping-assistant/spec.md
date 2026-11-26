@@ -319,12 +319,11 @@ feature):
   (P95) under the agreed evaluation workload (Product Brief §8).
 - **SC-005**: Retrieval relevance for discovery requests is measured with
   Recall@K and related relevance metrics against the evaluation dataset;
-  the numeric target is set when the evaluation dataset and methodology are
-  approved (Product Brief §8).
+  the release gate is Recall@3 ≥ 90% against the versioned evaluation
+  dataset (numeric target approved 2026-11-25).
 - **SC-006**: In multi-turn refinement evaluations, the customer reaches a
-  valid result set without repeating previously stated constraints in the
-  majority of refinement sessions; the exact target is set when the
-  evaluation methodology is approved.
+  valid result set without repeating previously stated constraints in at
+  least 90% of refinement sessions (numeric target approved 2026-11-25).
 
 Measurement methodology, the evaluation dataset, and acceptance conditions
 MUST be defined and approved before these criteria become release gates

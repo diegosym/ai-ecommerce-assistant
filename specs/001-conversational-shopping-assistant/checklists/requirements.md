@@ -41,7 +41,8 @@
   retained during the active conversation, "New conversation" and page
   reload both reset context, no persistence across visits; US2 gained a
   reset acceptance scenario; traceability updated.
-- Success criteria SC-005/SC-006 defer numeric targets to evaluation
-  design, as explicitly required by Product Brief §8 (not a gap).
+- Success criteria SC-005/SC-006 numeric targets approved 2026-11-25
+  (Recall@3 ≥ 90%, refinement success ≥ 90%); both are now release gates
+  evaluated against the versioned dataset.
 - No other requirements or user stories were altered; no Product Brief or
   Constitution changes.

@@ -176,7 +176,7 @@ Each report must record:
 - Recall@K/relevance baseline comparison (SC-005).
 - Refinement success without repeated requirements (SC-006).
 
-SC-005 and SC-006 are reports, not release gates, until their numeric targets and evaluation methodology are approved. Hosted-model evaluations must record variance and must not be represented as deterministic unit tests.
+SC-005 (Recall@3 ≥ 90%) and SC-006 (refinement ≥ 90%) are release gates approved 2026-11-25; the evaluator exits non-zero when either falls below target. Hosted-model evaluations must record variance and must not be represented as deterministic unit tests.
 
 ## 8. Optional Hosted Provider
 

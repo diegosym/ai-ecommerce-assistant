@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from scripts.evaluate import load_dataset, percentile
+from scripts.evaluate import gate_failures, load_dataset, percentile
 
 DATASET_COUNTS = {
     "discovery": 18,
@@ -54,3 +54,24 @@ def test_percentile_uses_nearest_rank() -> None:
     assert percentile([40, 10, 30, 20], 0.50) == 20
     assert percentile([40, 10, 30, 20], 0.95) == 40
     assert percentile([], 0.95) == 0
+
+
+def test_release_gates_fail_below_approved_targets() -> None:
+    metrics = {
+        "SC-005": {"recallAt3": 0.899, "target": 0.90},
+        "SC-006": {"successRate": 0.899, "target": 0.90},
+    }
+
+    failures = gate_failures(metrics)
+
+    assert any("SC-005" in failure for failure in failures)
+    assert any("SC-006" in failure for failure in failures)
+
+
+def test_release_gates_pass_at_approved_targets() -> None:
+    metrics = {
+        "SC-005": {"recallAt3": 0.90, "target": 0.90},
+        "SC-006": {"successRate": 0.90, "target": 0.90},
+    }
+
+    assert gate_failures(metrics) == []

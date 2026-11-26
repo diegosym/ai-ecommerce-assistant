@@ -11,7 +11,10 @@ export default defineConfig({
   reporter: "list",
   outputDir: join(tmpdir(), "ai-ecommerce-assistant-playwright"),
   use: {
-    baseURL: "http://127.0.0.1:3000",
+    // localhost, not 127.0.0.1: Next.js 16 dev HMR rejects a 127.0.0.1 Origin
+    // (invalid WS handshake), which stalls hydration and breaks every
+    // interaction test. See README troubleshooting.
+    baseURL: "http://localhost:3000",
     trace: "retain-on-failure",
   },
   projects: [
@@ -28,7 +31,7 @@ export default defineConfig({
     },
     {
       command: "ASSISTANT_API_URL=http://127.0.0.1:18000/api/v1 npm run dev",
-      url: "http://127.0.0.1:3000",
+      url: "http://localhost:3000",
       reuseExistingServer: !process.env.CI,
       timeout: 120_000,
     },
