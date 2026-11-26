@@ -1,6 +1,6 @@
 # Lexical baseline evaluation
 
-Generated: `2026-11-26T16:46:27.126517+00:00`
+Generated: `2026-11-26T20:05:42.871919+00:00`
 
 ## Reproducibility
 
@@ -29,9 +29,9 @@ Generated: `2026-11-26T16:46:27.126517+00:00`
 
 - Workload: `{"concurrency": 1, "execution": "in-process InteractionService with PostgreSQL and deterministic fake provider", "iterationsPerCase": 1, "requestCountIncludesAllRefinementTurns": true}`
 - Requests: 82
-- P50: 1.270 ms
-- P95: 1.810 ms (target <= 5000 ms)
-- Maximum: 2.877 ms
+- P50: 1.234 ms
+- P95: 1.504 ms (target <= 5000 ms)
+- Maximum: 3.369 ms
 
 ## Case failures
 

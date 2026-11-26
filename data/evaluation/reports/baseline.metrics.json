@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "generatedAt": "2026-11-26T16:46:27.126517+00:00",
+  "generatedAt": "2026-11-26T20:05:42.871919+00:00",
   "retrieval": "lexical",
   "catalogVersion": "1.0.0",
   "provider": "fake",
@@ -48,9 +48,9 @@
       "gate": "measured"
     },
     "SC-004": {
-      "p50Ms": 1.27016706392169,
-      "p95Ms": 1.8100840970873833,
-      "maxMs": 2.8770831413567066,
+      "p50Ms": 1.2342080008238554,
+      "p95Ms": 1.5041660517454147,
+      "maxMs": 3.369375132024288,
       "requestCount": 82,
       "targetP95Ms": 5000,
       "gate": "latency distribution under agreed evaluation workload"
