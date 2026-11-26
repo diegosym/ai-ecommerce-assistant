@@ -1,6 +1,6 @@
 # Hybrid candidate evaluation
 
-Generated: `2026-11-26T16:46:27.529563+00:00`
+Generated: `2026-11-26T20:05:43.184003+00:00`
 
 ## Reproducibility
 
@@ -29,9 +29,9 @@ Generated: `2026-11-26T16:46:27.529563+00:00`
 
 - Workload: `{"concurrency": 1, "execution": "in-process InteractionService with PostgreSQL and deterministic fake provider", "iterationsPerCase": 1, "requestCountIncludesAllRefinementTurns": true}`
 - Requests: 82
-- P50: 3.808 ms
-- P95: 4.743 ms (target <= 5000 ms)
-- Maximum: 6.849 ms
+- P50: 2.335 ms
+- P95: 3.087 ms (target <= 5000 ms)
+- Maximum: 8.020 ms
 
 ## Case failures
 
